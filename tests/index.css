@@ -1,0 +1,26 @@
+.simple-js-terminal {
+    color: white;
+    background-color: black;
+    font-family: monospace;
+    padding: 10px;
+    overflow: auto;
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    border: none;
+    outline: none;
+}
+
+.simple-js-term-input {
+    color: white;
+    background-color: black;
+    border: none;
+    outline: none;
+    font-size: 12px;
+    font-family: monospace;
+    padding: 0;
+    margin: 0;
+    display: inline;
+    width: 1px;
+
+}

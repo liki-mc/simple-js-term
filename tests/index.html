@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Testing Terminal</title>
+    <script src="../dist/main.js"></script>
+    <link rel="stylesheet" href="./index.css">
+</head>
+<body>
+    <div id="console"></div>
+    <script>
+        let terminal_div = document.getElementById('console');
+        let terminal = new shell.Terminal();
+        terminal_div.appendChild(terminal._div);
+    </script>
+</body>
+</html>
