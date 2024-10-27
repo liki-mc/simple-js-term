@@ -135,11 +135,9 @@ class Input extends Line {
             return this.nextCommand();
         }
         if (event.key == "ArrowLeft") {
-            console.log("arrowleft")
             return this.update(-1);
         }
         if (event.key == "ArrowRight") {
-            console.log("arrowright")
             return this.update(1);
         }
         if (event.ctrlKey && event.key !== "v") {
@@ -309,7 +307,7 @@ class Shell {
         }
         // if command doesn't exist, write error
         else {
-            process.error(`Command not found: ${command_name}`);
+            process.error(`&cCommand not found: &f'${command_name}'`);
             process.exit(1);
         }
     }

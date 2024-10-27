@@ -25,5 +25,5 @@ create_command("exit", async (process, args, kwargs) => {
 });
 
 create_command("morning", async (process, args, kwargs) => {
-    process.call("echo Good morning!");
+    process.call("echo '&bGood morning!'");
 });
