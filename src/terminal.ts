@@ -30,22 +30,56 @@ type ColorKey = keyof typeof colors;
 class Line {
     _div: HTMLDivElement | HTMLSpanElement;
     lastColor: string;
+    lastFormat: string;
     constructor(text: string, color: string = "white", _div : HTMLDivElement | HTMLSpanElement = document.createElement('div')) {
         this._div = _div;
         this.lastColor = "";
+        this.lastFormat = "";
         color = color || "white";
 
         // write first span
         this._write(text, color);
     }
 
-    _write(text : string, color : string = "white") {
+    _format_span(span : HTMLSpanElement, format : string) {
+        if (format.includes("l")) {
+            span.style.fontWeight = "bold";
+        }
+        let textDecoration = [];
+        if (format.includes("m")) {
+            textDecoration.push("line-through");
+        }
+        if (format.includes("n")) {
+            textDecoration.push("underline");
+        }
+        if (textDecoration.length > 0) {
+            span.style.textDecoration = textDecoration.join(" ");
+        }
+        if (format.includes("o")) {
+            span.style.fontStyle = "italic";
+        }
+    }
+
+    _write(text : string, color : string = "white", format : string = "") {
         if (color !== this.lastColor) {
             let span = document.createElement('span');
             span.textContent = "";
             span.style.color = color;
             this._div.appendChild(span);
             this.lastColor = color;
+            this._format_span(span, format);
+        } else if (format !== this.lastFormat) {
+            if (this._div.lastChild.textContent) {
+                let span = document.createElement('span');
+                span.textContent = "";
+                span.style.color = color;
+                this._div.appendChild(span);
+                this.lastFormat = format;
+                this._format_span(span, format);
+            } else {
+                this._format_span(this._div.lastChild as HTMLSpanElement, format);
+                this.lastFormat = format;
+            }
         }
         this._div.lastChild.textContent += text;
     }
@@ -56,20 +90,35 @@ class Line {
             return;
         }
         let temp_text = text.replace("\\&", "\xFFD0");
-        let groups = temp_text.split(/(&(?:[a-fA-F0-9])|(?:#[a-fA-F0-9]))/g);
+        let groups = temp_text.split(/(&(?:[a-fA-F0-9l-orL-OR])|(?:#[a-fA-F0-9]))/g);
         let color = this.lastColor;
+        let format = this.lastFormat;
         groups.forEach((group) => {
             if (group.startsWith("&")) {
                 if (group.length === 2) {
-                    let key = group[1].toLowerCase() as ColorKey;
-                    color = colors[key];
+                    let letter = group[1].toLowerCase();
+                    if (("lmnor").includes(letter)) {
+                        if (letter === "r") {
+                            format = "";
+                        } else {
+                            if (!format.includes(letter)) {
+                                format += letter;
+                            }
+                        }
+                        
+                    } else {
+                        let key = letter as ColorKey;
+                        color = colors[key];
+                        format = "";
+                    }
                 } else {
                     color = group.slice(1);
+                    format = "";
                 }
                 return;
             } else {
                 group = group.replace("\xFFD0", "&");
-                this._write(group, color);
+                this._write(group, color, format);
             }
         });
     }
@@ -77,6 +126,7 @@ class Line {
     clear() {
         this._div.innerHTML = "";
         this.lastColor = "";
+        this.lastFormat = "";
         this._write("", "white");
     }
 }
