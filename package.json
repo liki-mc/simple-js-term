@@ -1,6 +1,6 @@
 {
     "name": "simple-js-term",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "description": "Simple web terminal written in js",
     "main": "dist/main.js",
     "scripts": {
