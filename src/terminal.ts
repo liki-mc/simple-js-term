@@ -2,6 +2,26 @@ import minimist from "minimist";
 import { Command, Process } from "./process";
 import { parse } from "shell-quote";
 
+const colors: { [key: string]: string } = {
+    "0": "#000000",
+    "1": "#0000aa",
+    "2": "#00aa00",
+    "3": "#00aaaa",
+    "4": "#aa0000",
+    "5": "#aa00aa",
+    "6": "#ffaa00",
+    "7": "#aaaaaa",
+    "8": "#555555",
+    "9": "#5555ff",
+    "a": "#55ff55",
+    "b": "#55ffff",
+    "c": "#ff5555",
+    "d": "#ff55ff",
+    "e": "#ffff55",
+    "f": "#ffffff",
+}
+type ColorKey = keyof typeof colors;
+
 class Line {
     _div: HTMLDivElement | HTMLSpanElement;
     lastColor: string;
@@ -25,14 +45,34 @@ class Line {
         this._div.lastChild.textContent += text;
     }
 
-    write(text : string) {
-        this._write(text);
+    write(text : string, format_text: boolean = true) {
+        if (!format_text) {
+            this._write(text);
+            return;
+        }
+        let temp_text = text.replace("\\&", "\xFFD0");
+        let groups = temp_text.split(/(&(?:[a-fA-F0-9])|(?:#[a-fA-F0-9]))/g);
+        let color = this.lastColor;
+        groups.forEach((group) => {
+            if (group.startsWith("&")) {
+                if (group.length === 2) {
+                    let key = group[1].toLowerCase() as ColorKey;
+                    color = colors[key];
+                } else {
+                    color = group.slice(1);
+                }
+                return;
+            } else {
+                group = group.replace("\xFFD0", "&");
+                this._write(group, color);
+            }
+        });
     }
 
     clear() {
         this._div.innerHTML = "";
         this.lastColor = "";
-        this.write("");
+        this._write("", "white");
     }
 }
 
@@ -138,22 +178,14 @@ class Input extends Line {
 
         this.pre_input_span.clear();
         this.post_input_span.clear();
-        this.pre_input_span.write(front_string);
-        this.post_input_span.write(back_string);
-    }
-
-    get_text() {
-        return this._div.children[0].textContent + this.input.value;
+        this.pre_input_span.write(front_string, false);
+        this.post_input_span.write(back_string, false);
     }
 
     clear() {
         this.input.value = "";
         this.update();
         this._entry_index = this._entries.length - 1;
-    }
-
-    as_line() {
-        return new Line(this.get_text());
     }
 }
 
@@ -204,8 +236,8 @@ export class Terminal {
         this._console_div.appendChild(this.last_line._div);
     }
 
-    write(text : string, newline : boolean = true) {
-        this.last_line.write(text);
+    write(text : string, newline : boolean = true, format_text: boolean = true) {
+        this.last_line.write(text, format_text);
         if (newline) {
             this._new_line();
         }
@@ -213,7 +245,7 @@ export class Terminal {
     }
 
     async input(text : string) {
-        this.write(`>>> ${text}`);
+        this.write(`>>> ${text}`, true, false);
         if (text.startsWith("/")) {
             // assuming its a command, create process and run
             await this.run(text.slice(1));
