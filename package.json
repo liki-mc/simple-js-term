@@ -1,8 +1,8 @@
 {
     "name": "simple-js-term",
-    "version": "1.0.0",
+    "version": "1.0.3",
     "description": "Simple web terminal written in js",
-    "main": "index.js",
+    "main": "dist/main.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "build": "webpack --mode production",
@@ -10,7 +10,7 @@
     },
     "keywords": [],
     "author": "",
-    "license": "ISC",
+    "license": "MIT",
     "devDependencies": {
         "@types/minimist": "^1.2.5",
         "@types/shell-quote": "^1.7.5",
@@ -22,5 +22,9 @@
     "dependencies": {
         "minimist": "^1.2.8",
         "shell-quote": "^1.8.1"
-    }
+    },
+    "files": [
+        "dist/main.js",
+        "dist/main.css"
+    ]
 }
