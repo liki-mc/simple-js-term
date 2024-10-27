@@ -2,37 +2,132 @@ import minimist from "minimist";
 import { Command, Process } from "./process";
 import { parse } from "shell-quote";
 
+/* 
+ * These colors are taken from the Minecraft coloring system.
+ * Minecraft is a trademark of Mojang Studios. 
+ * These color codes are used here to provide color functionality and are not affiliated with or endorsed by Mojang Studios.
+ */
+const colors: { [key: string]: string } = {
+    "0": "#000000",
+    "1": "#0000aa",
+    "2": "#00aa00",
+    "3": "#00aaaa",
+    "4": "#aa0000",
+    "5": "#aa00aa",
+    "6": "#ffaa00",
+    "7": "#aaaaaa",
+    "8": "#555555",
+    "9": "#5555ff",
+    "a": "#55ff55",
+    "b": "#55ffff",
+    "c": "#ff5555",
+    "d": "#ff55ff",
+    "e": "#ffff55",
+    "f": "#ffffff",
+}
+type ColorKey = keyof typeof colors;
+
 class Line {
     _div: HTMLDivElement | HTMLSpanElement;
     lastColor: string;
+    lastFormat: string;
     constructor(text: string, color: string = "white", _div : HTMLDivElement | HTMLSpanElement = document.createElement('div')) {
         this._div = _div;
         this.lastColor = "";
+        this.lastFormat = "";
         color = color || "white";
 
         // write first span
         this._write(text, color);
     }
 
-    _write(text : string, color : string = "white") {
+    _format_span(span : HTMLSpanElement, format : string) {
+        if (format.includes("l")) {
+            span.style.fontWeight = "bold";
+        }
+        let textDecoration = [];
+        if (format.includes("m")) {
+            textDecoration.push("line-through");
+        }
+        if (format.includes("n")) {
+            textDecoration.push("underline");
+        }
+        if (textDecoration.length > 0) {
+            span.style.textDecoration = textDecoration.join(" ");
+        }
+        if (format.includes("o")) {
+            span.style.fontStyle = "italic";
+        }
+    }
+
+    _write(text : string, color : string = "white", format : string = "") {
         if (color !== this.lastColor) {
             let span = document.createElement('span');
             span.textContent = "";
             span.style.color = color;
             this._div.appendChild(span);
             this.lastColor = color;
+            this._format_span(span, format);
+        } else if (format !== this.lastFormat) {
+            if (this._div.lastChild.textContent) {
+                let span = document.createElement('span');
+                span.textContent = "";
+                span.style.color = color;
+                this._div.appendChild(span);
+                this.lastFormat = format;
+                this._format_span(span, format);
+            } else {
+                this._format_span(this._div.lastChild as HTMLSpanElement, format);
+                this.lastFormat = format;
+            }
         }
         this._div.lastChild.textContent += text;
     }
 
-    write(text : string) {
-        this._write(text);
+    write(text : string, format_text: boolean = true) {
+        if (!format_text) {
+            this._write(text);
+            return;
+        }
+        let temp_text = text.replace("\\&", "\xFFD0");
+        let groups = temp_text.split(/(&(?:[a-fA-F0-9l-orL-OR])|(?:#[a-fA-F0-9]))/g);
+        let color = this.lastColor;
+        let format = this.lastFormat;
+        groups.forEach((group) => {
+            if (group.startsWith("&")) {
+                if (group.length === 2) {
+                    let letter = group[1].toLowerCase();
+                    if (("lmnor").includes(letter)) {
+                        if (letter === "r") {
+                            format = "";
+                        } else {
+                            if (!format.includes(letter)) {
+                                format += letter;
+                            }
+                        }
+                        
+                    } else {
+                        let key = letter as ColorKey;
+                        color = colors[key];
+                        format = "";
+                    }
+                } else {
+                    color = group.slice(1);
+                    format = "";
+                }
+                return;
+            } else {
+                group = group.replace("\xFFD0", "&");
+                this._write(group, color, format);
+            }
+        });
     }
 
     clear() {
         this._div.innerHTML = "";
         this.lastColor = "";
-        this.write("");
+        this.lastFormat = "";
+        this._write("", "white");
     }
 }
 
@@ -90,11 +185,9 @@ class Input extends Line {
             return this.nextCommand();
         }
         if (event.key == "ArrowLeft") {
-            console.log("arrowleft")
             return this.update(-1);
         }
         if (event.key == "ArrowRight") {
-            console.log("arrowright")
             return this.update(1);
         }
         if (event.ctrlKey && event.key !== "v") {
@@ -138,22 +231,14 @@ class Input extends Line {
 
         this.pre_input_span.clear();
         this.post_input_span.clear();
-        this.pre_input_span.write(front_string);
-        this.post_input_span.write(back_string);
-    }
-
-    get_text() {
-        return this._div.children[0].textContent + this.input.value;
+        this.pre_input_span.write(front_string, false);
+        this.post_input_span.write(back_string, false);
     }
 
     clear() {
         this.input.value = "";
         this.update();
         this._entry_index = this._entries.length - 1;
-    }
-
-    as_line() {
-        return new Line(this.get_text());
     }
 }
 
@@ -204,8 +289,8 @@ export class Terminal {
         this._console_div.appendChild(this.last_line._div);
     }
 
-    write(text : string, newline : boolean = true) {
-        this.last_line.write(text);
+    write(text : string, newline : boolean = true, format_text: boolean = true) {
+        this.last_line.write(text, format_text);
         if (newline) {
             this._new_line();
         }
@@ -213,7 +298,7 @@ export class Terminal {
     }
 
     async input(text : string) {
-        this.write(`>>> ${text}`);
+        this.write(`>>> ${text}`, true, false);
         if (text.startsWith("/")) {
             // assuming its a command, create process and run
             await this.run(text.slice(1));
@@ -272,7 +357,7 @@ class Shell {
         }
         // if command doesn't exist, write error
         else {
-            process.error(`Command not found: ${command_name}`);
+            process.error(`&cCommand not found: &f'${command_name}'`);
             process.exit(1);
         }
     }
