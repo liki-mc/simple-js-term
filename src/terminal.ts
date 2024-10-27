@@ -2,6 +2,11 @@ import minimist from "minimist";
 import { Command, Process } from "./process";
 import { parse } from "shell-quote";
 
+/* 
+ * These colors are taken from the Minecraft coloring system.
+ * Minecraft is a trademark of Mojang Studios. 
+ * These color codes are used here to provide color functionality and are not affiliated with or endorsed by Mojang Studios.
+ */
 const colors: { [key: string]: string } = {
     "0": "#000000",
     "1": "#0000aa",
