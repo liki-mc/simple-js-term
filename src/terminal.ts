@@ -1,5 +1,5 @@
 import minimist from "minimist";
-import { Command, Process } from "./process";
+import { ArgparseOptions, Command, Process } from "./process";
 import { parse } from "shell-quote";
 
 /* 
@@ -319,14 +319,14 @@ export class Terminal {
     }
 }
 
-class Shell {
+export class Shell {
     commands : Command[];
 
     constructor() {
         this.commands = [];
     }
 
-    create_command(name : string, callback : (process : Process, args : string[], kwargs : {[value : string]: string}) => void | Promise<void>, docs : string = null, autocomplete : (...args: string[]) => string = null, argparse_options : minimist.Opts = {}) {
+    create_command(name : string, callback : (process : Process, args : string[], kwargs : {[value : string]: string}) => void | Promise<void>, docs : string = null, autocomplete : (...args: string[]) => string = null, argparse_options: ArgparseOptions = {}) {
         // add checks to name, docs, autocomplete
         this.commands.push({
             name: name,

@@ -55,10 +55,12 @@ export class Process {
     }
 }
 
+export type ArgparseOptions = minimist.Opts;
+
 export interface Command {
     name : string;
     execute : (process : Process, args: string[], kwargs: {[key: string]: string}) => void | Promise<void>;
     docs ?: string;
     autocomplete ?: (...args: string[]) => string;
-    argparse_options ?: minimist.Opts;
+    argparse_options ?: ArgparseOptions;
 };

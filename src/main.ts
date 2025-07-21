@@ -1,5 +1,4 @@
-import minimist from "minimist";
-import { Process } from "./process";
+import { Process, ArgparseOptions } from "./process";
 import { shell } from "./terminal";
 
 export { shell };
@@ -8,7 +7,7 @@ export const create_terminal = (div : HTMLDivElement) => {
     return shell.create_terminal(div);
 }
 
-export const create_command = (name : string, execute : (process : Process, args: string[], kwargs: {[key: string]: string}) => void | Promise<void>, docs ?: string, autocomplete ?: (...args: string[]) => string, argparse_options ?: minimist.Opts) => {
+export const create_command = (name : string, execute : (process : Process, args: string[], kwargs: {[key: string]: string}) => void | Promise<void>, docs ?: string, autocomplete ?: (...args: string[]) => string, argparse_options ?: ArgparseOptions) => {
     shell.create_command(name, execute, docs, autocomplete, argparse_options);
 }
 
@@ -27,3 +26,8 @@ create_command("exit", async (process, args, kwargs) => {
 create_command("morning", async (process, args, kwargs) => {
     process.call("echo '&bGood morning!'");
 });
+
+// Typescript exports
+export type { Command, ArgparseOptions } from "./process";
+export { Shell } from "./terminal";
+export { Process } from "./process";
