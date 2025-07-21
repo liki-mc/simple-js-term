@@ -299,13 +299,10 @@ export class Terminal {
 
     async input(text : string) {
         this.write(`>>> ${text}`, true, false);
-        if (text.startsWith("/")) {
-            // assuming its a command, create process and run
-            await this.run(text.slice(1));
+        if (this._read_requests.length > 0) {
+            this._read_requests.shift()(text);
         } else {
-            if (this._read_requests.length > 0) {
-                this._read_requests.shift()(text);
-            }
+            await this.run(text);
         }
         this._input.clear();
     }
