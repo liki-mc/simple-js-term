@@ -22,15 +22,17 @@ shell.create_command('spam', (process, args, kwargs) => {
     }
 });
 ```
-This command will print the text of the second argument, a number of times equal to the first argument
+This command will print the text of the second argument, a number of times equal to the first argument, e.g.
 ```sh
 spam 12 message
 ```
 
 **Arguments**
-Commands can make use of args and kwargs. Parsing is done using (`shell-quote`)[https://www.npmjs.com/package/shell-quote]. Determining args and kwargs is done using (`minimist`)[https://www.npmjs.com/package/minimist].
+
+Commands can make use of args and kwargs. Parsing is done using [`shell-quote`](https://www.npmjs.com/package/shell-quote). Determining args and kwargs is done using [`minimist`](https://www.npmjs.com/package/minimist).
 
 **Terminal**
+
 Commands can interact with the terminal using the process. 
 - Read: `var input = await process.input()`
 - Write: `process.log(message)`
@@ -38,6 +40,7 @@ Commands can interact with the terminal using the process.
 - Running other commands: `process.call(command_string)`
 
 **Examples**
+
 These are example commands that are available in the terminal.
 ```js
 create_command("read", async (process, args, kwargs) => {
@@ -56,6 +59,7 @@ create_command("exit", async (process, args, kwargs) => {
 ```
 
 **Styling**
+
 This library allows to color your text, add bold, underline, strikethrough and italic.
 
 Styling is done using `&` followed by a letter, number or `#` for custom colors. The default, built-in formatting codes are inspired by minecraft and listed below.
@@ -99,8 +103,8 @@ create_command("pink", async (process, args, kwargs) => {
 ```
 ## Contributing
 
-If you want to contribute to this project, feel free to open an issue or a pull request. Contributions are always welcome!
+If you want to contribute to this project, feel free to open an issue or a pull request on [github](https://github.com/liki-mc/simple-js-term). Contributions are always welcome!
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
