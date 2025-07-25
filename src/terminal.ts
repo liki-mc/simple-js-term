@@ -132,7 +132,7 @@ class Line {
 }
 
 class Input extends Line {
-    _div: HTMLDivElement;
+    declare _div: HTMLDivElement;
     terminal : Terminal;
     pre_input_span : Line;
     post_input_span : Line;
